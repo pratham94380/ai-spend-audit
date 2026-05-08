@@ -21,3 +21,31 @@
 - Set up React frontend
 - Build spend input form UI
 - Connect frontend with backend API
+
+
+
+## Day 2 — 2026-05-08
+
+**Hours worked:** 5
+
+**What I did:**
+- Set up React frontend using Vite
+- Configured Tailwind CSS for UI styling
+- Built spend input form with controlled components
+- Added localStorage persistence for form data
+- Connected frontend with Django backend API
+- Implemented audit result display from backend response
+
+**What I learned:**
+- Managing React state and API integration
+- Handling frontend/backend communication with CORS
+- Structuring reusable frontend form logic
+
+**Blockers / what I'm stuck on:**
+- Need to improve audit logic for multiple AI tools and plans
+
+**Plan for tomorrow:**
+- Expand audit engine with pricing rules
+- Improve results UI and savings breakdown
+- Add support for multiple tools
+
