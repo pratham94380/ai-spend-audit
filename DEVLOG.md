@@ -49,3 +49,31 @@
 - Improve results UI and savings breakdown
 - Add support for multiple tools
 
+
+## Day 3 — 2026-05-09
+
+**Hours worked:** 5
+
+**What I did:**
+- Refactored audit logic into a scalable pricing configuration system
+- Added centralized pricing data structure for multiple AI tools
+- Implemented recommendation reasoning and savings analysis
+- Added annual and monthly savings calculations
+- Improved frontend results UI with savings cards and recommendation sections
+- Enhanced backend audit engine to support scalable pricing logic
+
+**What I learned:**
+- Structuring scalable backend business logic
+- Separating pricing configuration from application logic
+- Designing frontend UI for financial insights and recommendations
+- Building more maintainable full-stack architecture
+
+**Blockers / what I'm stuck on:**
+- Need to support multiple tools in a single audit session
+- Need more advanced recommendation logic for edge cases
+
+**Plan for tomorrow:**
+- Add support for multiple tool entries
+- Improve audit intelligence and optimization suggestions
+- Start pricing documentation and tool comparison logic
+
