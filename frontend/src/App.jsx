@@ -140,17 +140,42 @@ function App() {
           </button>
 
           {auditResult && (
-            <div className="mt-6 bg-zinc-800 p-4 rounded-xl">
-              <h2 className="text-xl font-semibold mb-2">Audit Result</h2>
+            <div className="mt-8 bg-zinc-800 p-6 rounded-2xl border border-zinc-700">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold">Audit Results</h2>
 
-              <p>{auditResult.recommendation}</p>
+                <p className="text-zinc-400 mt-1">
+                  AI spending analysis and optimization recommendations.
+                </p>
+              </div>
 
-              <p className="mt-2 text-green-400">
-                Potential Savings: ${auditResult.monthly_savings}/month
-              </p>
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="bg-zinc-900 p-4 rounded-xl">
+                  <p className="text-zinc-400 text-sm">Monthly Savings</p>
+
+                  <h3 className="text-3xl font-bold text-green-400 mt-2">
+                    ${auditResult.monthly_savings}
+                  </h3>
+                </div>
+
+                <div className="bg-zinc-900 p-4 rounded-xl">
+                  <p className="text-zinc-400 text-sm">Annual Savings</p>
+
+                  <h3 className="text-3xl font-bold text-green-400 mt-2">
+                    ${auditResult.annual_savings}
+                  </h3>
+                </div>
+              </div>
+
+              <div className="bg-zinc-900 p-5 rounded-xl">
+                <h3 className="text-xl font-semibold mb-3">Recommendation</h3>
+
+                <p className="mb-3">{auditResult.recommendation}</p>
+
+                <p className="text-zinc-400 text-sm">{auditResult.reason}</p>
+              </div>
             </div>
           )}
-          
         </div>
       </div>
     </div>
