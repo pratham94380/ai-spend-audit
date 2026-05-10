@@ -1,32 +1,48 @@
 import { useEffect, useState } from "react";
 
 function App() {
-  const [formData, setFormData] = useState(() => {
-    const savedData = localStorage.getItem("auditForm");
+  const [tools, setTools] = useState(() => {
+    const savedData = localStorage.getItem("auditTools");
 
     return savedData
       ? JSON.parse(savedData)
-      : {
-          tool: "",
-          plan: "",
-          spend: "",
-          seats: "",
-          useCase: "",
-        };
+      : [
+          {
+            tool: "",
+            plan: "",
+            spend: "",
+            seats: "",
+            useCase: "",
+          },
+        ];
   });
 
-  useEffect(() => {
-    localStorage.setItem("auditForm", JSON.stringify(formData));
-  }, [formData]);
+  const [auditResult, setAuditResult] = useState(null);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  useEffect(() => {
+    localStorage.setItem("auditTools", JSON.stringify(tools));
+  }, [tools]);
+
+  const handleChange = (index, e) => {
+    const updatedTools = [...tools];
+
+    updatedTools[index][e.target.name] = e.target.value;
+
+    setTools(updatedTools);
   };
 
-  const [auditResult, setAuditResult] = useState(null);
+  const addTool = () => {
+    setTools([
+      ...tools,
+      {
+        tool: "",
+        plan: "",
+        spend: "",
+        seats: "",
+        useCase: "",
+      },
+    ]);
+  };
 
   const generateAudit = async () => {
     try {
@@ -37,7 +53,7 @@ function App() {
           "Content-Type": "application/json",
         },
 
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ tools }),
       });
 
       const data = await response.json();
@@ -47,96 +63,98 @@ function App() {
       console.error(error);
     }
   };
+
   return (
-    <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center px-4">
-      <div className="w-full max-w-xl bg-zinc-900 p-8 rounded-2xl shadow-2xl">
+    <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-2xl bg-zinc-900 p-8 rounded-2xl shadow-2xl">
         <h1 className="text-4xl font-bold mb-2">AI Spend Audit</h1>
 
         <p className="text-zinc-400 mb-8">
           Analyze your AI tool spending and discover savings.
         </p>
 
-        <div className="space-y-5">
-          <div>
-            <label className="block mb-2 text-sm">AI Tool</label>
-
-            <select
-              name="tool"
-              value={formData.tool}
-              onChange={handleChange}
-              className="w-full p-3 rounded-xl bg-zinc-800 border border-zinc-700"
+        <div className="space-y-8">
+          {tools.map((toolData, index) => (
+            <div
+              key={index}
+              className="bg-zinc-800 p-5 rounded-2xl border border-zinc-700"
             >
-              <option value="">Select Tool</option>
-              <option>ChatGPT</option>
-              <option>Claude</option>
-              <option>Cursor</option>
-              <option>GitHub Copilot</option>
-              <option>Gemini</option>
-            </select>
-          </div>
+              <h2 className="text-xl font-semibold mb-5">Tool #{index + 1}</h2>
 
-          <div>
-            <label className="block mb-2 text-sm">Plan</label>
+              <div className="space-y-5">
+                <div>
+                  <label className="block mb-2 text-sm">AI Tool</label>
 
-            <input
-              type="text"
-              name="plan"
-              value={formData.plan}
-              onChange={handleChange}
-              placeholder="e.g. Plus / Team"
-              className="w-full p-3 rounded-xl bg-zinc-800 border border-zinc-700"
-            />
-          </div>
+                  <select
+                    name="tool"
+                    value={toolData.tool}
+                    onChange={(e) => handleChange(index, e)}
+                    className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-700"
+                  >
+                    <option value="">Select Tool</option>
 
-          <div>
-            <label className="block mb-2 text-sm">Monthly Spend ($)</label>
+                    <option>ChatGPT</option>
+                    <option>Claude</option>
+                    <option>Cursor</option>
+                    <option>GitHub Copilot</option>
+                    <option>Gemini</option>
+                  </select>
+                </div>
 
-            <input
-              type="number"
-              name="spend"
-              value={formData.spend}
-              onChange={handleChange}
-              placeholder="100"
-              className="w-full p-3 rounded-xl bg-zinc-800 border border-zinc-700"
-            />
-          </div>
+                <div>
+                  <label className="block mb-2 text-sm">Plan</label>
 
-          <div>
-            <label className="block mb-2 text-sm">Number of Seats</label>
+                  <input
+                    type="text"
+                    name="plan"
+                    value={toolData.plan}
+                    onChange={(e) => handleChange(index, e)}
+                    placeholder="e.g. Team"
+                    className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-700"
+                  />
+                </div>
 
-            <input
-              type="number"
-              name="seats"
-              value={formData.seats}
-              onChange={handleChange}
-              placeholder="5"
-              className="w-full p-3 rounded-xl bg-zinc-800 border border-zinc-700"
-            />
-          </div>
+                <div>
+                  <label className="block mb-2 text-sm">
+                    Monthly Spend ($)
+                  </label>
 
-          <div>
-            <label className="block mb-2 text-sm">Primary Use Case</label>
+                  <input
+                    type="number"
+                    name="spend"
+                    value={toolData.spend}
+                    onChange={(e) => handleChange(index, e)}
+                    className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-700"
+                  />
+                </div>
 
-            <select
-              name="useCase"
-              value={formData.useCase}
-              onChange={handleChange}
-              className="w-full p-3 rounded-xl bg-zinc-800 border border-zinc-700"
-            >
-              <option value="">Select Use Case</option>
-              <option>Coding</option>
-              <option>Writing</option>
-              <option>Research</option>
-              <option>Data Analysis</option>
-              <option>Mixed</option>
-            </select>
-          </div>
+                <div>
+                  <label className="block mb-2 text-sm">Seats</label>
+
+                  <input
+                    type="number"
+                    name="seats"
+                    value={toolData.seats}
+                    onChange={(e) => handleChange(index, e)}
+                    className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-700"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <button
+            onClick={addTool}
+            className="w-full bg-zinc-700 py-3 rounded-xl hover:bg-zinc-600 transition"
+          >
+            + Add Another Tool
+          </button>
 
           <button
             onClick={generateAudit}
             className="w-full bg-white text-black font-semibold py-3 rounded-xl hover:bg-zinc-200 transition"
           >
-            Generate Audit
+            Generate Full Audit
           </button>
 
           {auditResult && (
@@ -145,7 +163,7 @@ function App() {
                 <h2 className="text-2xl font-bold">Audit Results</h2>
 
                 <p className="text-zinc-400 mt-1">
-                  AI spending analysis and optimization recommendations.
+                  Combined AI spending analysis.
                 </p>
               </div>
 
@@ -154,7 +172,7 @@ function App() {
                   <p className="text-zinc-400 text-sm">Monthly Savings</p>
 
                   <h3 className="text-3xl font-bold text-green-400 mt-2">
-                    ${auditResult.monthly_savings}
+                    ${auditResult.total_monthly_savings}
                   </h3>
                 </div>
 
@@ -162,17 +180,29 @@ function App() {
                   <p className="text-zinc-400 text-sm">Annual Savings</p>
 
                   <h3 className="text-3xl font-bold text-green-400 mt-2">
-                    ${auditResult.annual_savings}
+                    ${auditResult.total_annual_savings}
                   </h3>
                 </div>
               </div>
 
-              <div className="bg-zinc-900 p-5 rounded-xl">
-                <h3 className="text-xl font-semibold mb-3">Recommendation</h3>
+              <div className="space-y-4">
+                {auditResult.results.map((result, index) => (
+                  <div key={index} className="bg-zinc-900 p-5 rounded-xl">
+                    <h3 className="text-xl font-semibold mb-2">
+                      {result.tool}
+                    </h3>
 
-                <p className="mb-3">{auditResult.recommendation}</p>
+                    <p className="mb-2">{result.recommendation}</p>
 
-                <p className="text-zinc-400 text-sm">{auditResult.reason}</p>
+                    <p className="text-zinc-400 text-sm mb-3">
+                      {result.reason}
+                    </p>
+
+                    <p className="text-green-400 font-semibold">
+                      Potential Savings: ${result.monthly_savings}/month
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           )}

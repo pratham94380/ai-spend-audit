@@ -7,67 +7,76 @@ from .pricing_data import PRICING
 @api_view(['POST'])
 def generate_audit(request):
 
-    data = request.data
+    tools = request.data.get("tools", [])
 
-    tool = data.get("tool")
-    plan = data.get("plan")
-    spend = float(data.get("spend", 0))
-    seats = int(data.get("seats", 1))
+    results = []
 
-    recommendation = "Your spending looks optimized."
-    savings = 0
-    reason = "No major inefficiencies detected."
+    total_monthly_savings = 0
 
-    # Get official price
-    official_price = PRICING.get(tool, {}).get(plan)
+    for item in tools:
 
-    if official_price:
+        tool = item.get("tool")
+        plan = item.get("plan")
+        spend = float(item.get("spend", 0))
+        seats = int(item.get("seats", 1))
 
-        expected_cost = official_price * seats
+        recommendation = "Your spending looks optimized."
+        savings = 0
+        reason = "No major inefficiencies detected."
 
-        # Overspending detection
-        if spend > expected_cost:
+        official_price = PRICING.get(tool, {}).get(plan)
 
-            savings = round(spend - expected_cost, 2)
+        if official_price:
 
-            recommendation = f"Reduce spending on {tool}."
+            expected_cost = official_price * seats
 
-            reason = (
-                f"You are spending ${spend}, "
-                f"while estimated pricing is "
-                f"around ${expected_cost}."
-            )
+            if spend > expected_cost:
 
-        # Team overkill logic
-        if seats <= 2 and plan in ["Team", "Business"]:
+                savings = round(
+                    spend - expected_cost,
+                    2
+                )
 
-            recommendation = (
-                f"Downgrade from {plan} plan."
-            )
+                recommendation = (
+                    f"Reduce spending on {tool}."
+                )
 
-            reason = (
-                "Small teams usually don't require "
-                "higher collaboration plans."
-            )
+                reason = (
+                    f"Current spend is ${spend}, "
+                    f"while expected pricing "
+                    f"is around ${expected_cost}."
+                )
 
-            cheaper_plan = "Plus"
+            if seats <= 2 and plan in [
+                "Team",
+                "Business"
+            ]:
 
-            if tool == "GitHub Copilot":
-                cheaper_plan = "Individual"
+                recommendation = (
+                    f"Downgrade from {plan} plan."
+                )
 
-            cheaper_price = (
-                PRICING.get(tool, {}).get(cheaper_plan, 0)
-            )
+                reason = (
+                    "Small teams usually don't "
+                    "require collaboration plans."
+                )
 
-            savings = (
-                spend - (cheaper_price * seats)
-            )
+        total_monthly_savings += savings
+
+        results.append({
+            "tool": tool,
+            "plan": plan,
+            "recommendation": recommendation,
+            "reason": reason,
+            "monthly_savings": savings,
+            "annual_savings": savings * 12,
+        })
 
     return Response({
-        "tool": tool,
-        "plan": plan,
-        "recommendation": recommendation,
-        "reason": reason,
-        "monthly_savings": round(savings, 2),
-        "annual_savings": round(savings * 12, 2)
+        "results": results,
+        "total_monthly_savings":
+            round(total_monthly_savings, 2),
+
+        "total_annual_savings":
+            round(total_monthly_savings * 12, 2)
     })
