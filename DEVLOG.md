@@ -105,3 +105,33 @@
 - Add smarter recommendation logic and optimization heuristics
 - Improve UI/UX with charts and analytics
 - Start pricing documentation and tool comparison references
+
+
+## Day 5 — 2026-05-12
+
+**Hours worked:** 5
+
+**What I did:**
+- Added dynamic tool removal functionality to the multi-tool audit form
+- Implemented frontend validation for incomplete audit submissions
+- Enhanced backend recommendation engine with critical overspending detection
+- Added visual savings progress indicators for audit results
+- Improved user experience and interaction flow for multi-tool audits
+- Tested edge cases including empty submissions, overspending scenarios, and dynamic tool management
+
+**What I learned:**
+- Managing dynamic UI interactions in React
+- Designing validation flows for better user experience
+- Building smarter backend recommendation heuristics
+- Improving SaaS-style frontend analytics visualization
+
+**Blockers / what I'm stuck on:**
+- Need more advanced financial optimization logic
+- Need graphical analytics and export functionality
+- Need better handling for inconsistent pricing inputs
+
+**Plan for tomorrow:**
+- Add charts and analytics dashboard
+- Implement export report functionality
+- Improve README and project documentation
+- Start pricing reference documentation
