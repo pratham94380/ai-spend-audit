@@ -44,7 +44,22 @@ function App() {
     ]);
   };
 
+  const removeTool = (index) => {
+    if (tools.length === 1) return;
+
+    const updatedTools = tools.filter((_, i) => i !== index);
+
+    setTools(updatedTools);
+  };
+
   const generateAudit = async () => {
+    for (const tool of tools) {
+      if (!tool.tool || !tool.plan || !tool.spend || !tool.seats) {
+        alert("Please fill all fields before generating audit.");
+        return;
+      }
+    }
+
     try {
       const response = await fetch("http://127.0.0.1:8000/api/audit/", {
         method: "POST",
@@ -79,7 +94,15 @@ function App() {
               key={index}
               className="bg-zinc-800 p-5 rounded-2xl border border-zinc-700"
             >
-              <h2 className="text-xl font-semibold mb-5">Tool #{index + 1}</h2>
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-xl font-semibold">Tool #{index + 1}</h2>
+                <button
+                  onClick={() => removeTool(index)}
+                  className="text-red-400 hover:text-red-300 text-sm"
+                >
+                  Remove
+                </button>
+              </div>
 
               <div className="space-y-5">
                 <div>
@@ -201,6 +224,14 @@ function App() {
                     <p className="text-green-400 font-semibold">
                       Potential Savings: ${result.monthly_savings}/month
                     </p>
+                    <div className="w-full bg-zinc-700 rounded-full h-3 mt-4">
+                      <div
+                        className="bg-green-400 h-3 rounded-full"
+                        style={{
+                          width: `${Math.min(result.monthly_savings, 100)}%`,
+                        }}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>

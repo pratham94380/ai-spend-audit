@@ -30,6 +30,7 @@ def generate_audit(request):
 
             expected_cost = official_price * seats
 
+
             if spend > expected_cost:
 
                 savings = round(
@@ -46,6 +47,18 @@ def generate_audit(request):
                     f"while expected pricing "
                     f"is around ${expected_cost}."
                 )
+
+                # Extreme overspending detection
+                if spend > expected_cost * 2:
+
+                    recommendation = (
+                        f"Critical overspending detected for {tool}."
+                    )
+
+                    reason = (
+                        "Your current spend is more than "
+                        "2x the estimated pricing."
+                    )
 
             if seats <= 2 and plan in [
                 "Team",
