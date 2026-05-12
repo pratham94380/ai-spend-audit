@@ -70,18 +70,21 @@ function App() {
     }
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/audit/", {
-        method: "POST",
+      const response = await fetch(
+        "https://ai-spend-audit-3kp0.onrender.com/api/audit/",
+        {
+          method: "POST",
 
-        headers: {
-          "Content-Type": "application/json",
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            tools,
+            teamSize,
+          }),
         },
-
-        body: JSON.stringify({
-          tools,
-          teamSize,
-        }),
-      });
+      );
 
       const data = await response.json();
 
