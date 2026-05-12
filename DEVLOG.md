@@ -135,3 +135,40 @@
 - Implement export report functionality
 - Improve README and project documentation
 - Start pricing reference documentation
+
+
+## Day 6 — 2026-05-12
+
+**Hours worked:** 7
+
+**What I did:**
+- Added AI-generated audit summaries using OpenAI API integration
+- Implemented fallback summary handling for API failures and missing credentials
+- Improved frontend audit result rendering with dedicated AI summary section
+- Added input validation to prevent negative values and invalid audit submissions
+- Deployed frontend to Vercel and backend to Render
+- Configured production API communication between frontend and backend
+- Debugged and resolved CORS issues between Vercel frontend and Render backend
+- Added environment variable handling for OpenAI API keys in production
+- Tested deployed production workflow end-to-end with multiple audit scenarios
+- Improved overall SaaS-style UX and deployment stability
+
+**What I learned:**
+- Handling production deployment workflows for full-stack applications
+- Managing CORS policies and frontend/backend communication in deployed environments
+- Using environment variables securely in cloud deployments
+- Building resilient AI integrations with graceful fallback handling
+- Debugging real-world deployment and networking issues
+
+**Blockers / what I'm stuck on:**
+- Need more advanced analytics and visualization features
+- Need export/share functionality for audit reports
+- Need user interview and validation documentation
+
+**Plan for tomorrow:**
+- Finalize project documentation and submission polish
+- Add export/share functionality for audit reports
+- Improve loading states and user feedback UX
+- Complete user interview summaries and product validation notes
+
+
