@@ -72,6 +72,7 @@ function App() {
     try {
       const response = await fetch(
         "https://ai-spend-audit-3kp0.onrender.com/api/audit/",
+        // "http://127.0.0.1:8000/api/audit/",
         {
           method: "POST",
 
@@ -281,6 +282,19 @@ function App() {
                     </div>
                   </div>
                 ))}
+
+                <div className="bg-zinc-900 p-5 rounded-xl mt-6">
+
+                    <h3 className="text-xl font-semibold mb-3">
+                      AI Summary
+                    </h3>
+
+                    <p className="text-zinc-300 leading-relaxed">
+                      {auditResult.summary}
+                    </p>
+
+                </div>
+
               </div>
             </div>
           )}

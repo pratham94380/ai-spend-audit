@@ -1,7 +1,20 @@
+import os
+
+from openai import OpenAI
+
+from dotenv import load_dotenv
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .pricing_data import PRICING
+
+load_dotenv()
+
+client = OpenAI(
+    api_key=os.getenv(
+        "OPENAI_API_KEY"
+    )
+)
 
 
 @api_view(['POST'])
@@ -85,8 +98,62 @@ def generate_audit(request):
             "annual_savings": savings * 12,
         })
 
+    try:
+
+        prompt = f"""
+        Generate a short professional AI spend audit summary.
+
+        Monthly savings:
+        ${round(total_monthly_savings, 2)}
+
+        Annual savings:
+        ${round(total_monthly_savings * 12, 2)}
+
+        Audit Results:
+        {results}
+
+        Keep response under 100 words.
+        """
+
+        response = client.chat.completions.create(
+
+            model="gpt-4o-mini",
+
+            messages=[
+
+                {
+                    "role": "system",
+
+                    "content":
+                    "You are an AI spend optimization assistant."
+                },
+
+                {
+                    "role": "user",
+
+                    "content": prompt
+                }
+            ]
+        )
+
+        summary = (
+            response.choices[0]
+            .message.content
+        )
+
+    except Exception:
+
+        summary = (
+            f"Your team could potentially save "
+            f"${round(total_monthly_savings, 2)}/month "
+            f"and ${round(total_monthly_savings * 12, 2)}/year "
+            f"by optimizing AI tooling plans "
+            f"and reducing unnecessary spending."
+        )
+
     return Response({
         "results": results,
+        "summary": summary,
         "total_monthly_savings":
             round(total_monthly_savings, 2),
 
