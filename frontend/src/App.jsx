@@ -71,6 +71,8 @@ function App() {
 
     try {
       const response = await fetch(
+        // /"https://ai-spend-audit-3kp0.onrender.com/api/audit/",
+        // "http://127.0.0.1:8000/api/audit/",
         "https://ai-spend-audit-3kp0.onrender.com/api/audit/",
         {
           method: "POST",
