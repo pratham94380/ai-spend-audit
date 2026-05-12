@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { TOOL_OPTIONS } from "./toolOptions";
 
 function App() {
   const [tools, setTools] = useState(() => {
@@ -19,9 +20,17 @@ function App() {
 
   const [auditResult, setAuditResult] = useState(null);
 
+  const [teamSize, setTeamSize] = useState(
+    localStorage.getItem("teamSize") || "",
+  );
+
   useEffect(() => {
     localStorage.setItem("auditTools", JSON.stringify(tools));
   }, [tools]);
+
+  useEffect(() => {
+    localStorage.setItem("teamSize", teamSize);
+  }, [teamSize]);
 
   const handleChange = (index, e) => {
     const updatedTools = [...tools];
@@ -54,7 +63,7 @@ function App() {
 
   const generateAudit = async () => {
     for (const tool of tools) {
-      if (!tool.tool || !tool.plan || !tool.spend || !tool.seats) {
+      if (!tool.tool || !tool.plan || !tool.spend || !tool.seats || !tool.useCase) {
         alert("Please fill all fields before generating audit.");
         return;
       }
@@ -68,7 +77,10 @@ function App() {
           "Content-Type": "application/json",
         },
 
-        body: JSON.stringify({ tools }),
+        body: JSON.stringify({
+          tools,
+          teamSize,
+        }),
       });
 
       const data = await response.json();
@@ -87,6 +99,17 @@ function App() {
         <p className="text-zinc-400 mb-8">
           Analyze your AI tool spending and discover savings.
         </p>
+
+        <div className="mb-8">
+          <label className="block mb-2 text-sm">Total Team Size</label>
+          <input
+            type="number"
+            value={teamSize}
+            onChange={(e) => setTeamSize(e.target.value)}
+            placeholder="e.g. 10"
+            className="w-full p-3 rounded-xl bg-zinc-800 border border-zinc-700"
+          />
+        </div>
 
         <div className="space-y-8">
           {tools.map((toolData, index) => (
@@ -107,7 +130,6 @@ function App() {
               <div className="space-y-5">
                 <div>
                   <label className="block mb-2 text-sm">AI Tool</label>
-
                   <select
                     name="tool"
                     value={toolData.tool}
@@ -115,26 +137,29 @@ function App() {
                     className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-700"
                   >
                     <option value="">Select Tool</option>
-
-                    <option>ChatGPT</option>
-                    <option>Claude</option>
-                    <option>Cursor</option>
-                    <option>GitHub Copilot</option>
-                    <option>Gemini</option>
+                    {Object.keys(TOOL_OPTIONS).map((tool) => (
+                      <option key={tool} value={tool}>
+                        {tool}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
                 <div>
                   <label className="block mb-2 text-sm">Plan</label>
-
-                  <input
-                    type="text"
+                  <select
                     name="plan"
                     value={toolData.plan}
                     onChange={(e) => handleChange(index, e)}
-                    placeholder="e.g. Team"
                     className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-700"
-                  />
+                  >
+                    <option value="">Select Plan</option>
+                    {(TOOL_OPTIONS[toolData.tool] || []).map((plan) => (
+                      <option key={plan} value={plan}>
+                        {plan}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
@@ -153,7 +178,6 @@ function App() {
 
                 <div>
                   <label className="block mb-2 text-sm">Seats</label>
-
                   <input
                     type="number"
                     name="seats"
@@ -161,6 +185,23 @@ function App() {
                     onChange={(e) => handleChange(index, e)}
                     className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-700"
                   />
+                </div>
+
+                <div>
+                  <label className="block mb-2 text-sm">Primary Use Case</label>
+                  <select
+                    name="useCase"
+                    value={toolData.useCase}
+                    onChange={(e) => handleChange(index, e)}
+                    className="w-full p-3 rounded-xl bg-zinc-900 border border-zinc-700"
+                  >
+                    <option value="">Select Use Case</option>
+                    <option>Coding</option>
+                    <option>Writing</option>
+                    <option>Data</option>
+                    <option>Research</option>
+                    <option>Mixed</option>
+                  </select>
                 </div>
               </div>
             </div>
