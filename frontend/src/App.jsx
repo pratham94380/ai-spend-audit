@@ -107,6 +107,7 @@ function App() {
           <label className="block mb-2 text-sm">Total Team Size</label>
           <input
             type="number"
+            min="0"
             value={teamSize}
             onChange={(e) => setTeamSize(e.target.value)}
             placeholder="e.g. 10"
@@ -172,6 +173,7 @@ function App() {
 
                   <input
                     type="number"
+                    min="0"
                     name="spend"
                     value={toolData.spend}
                     onChange={(e) => handleChange(index, e)}
@@ -183,6 +185,7 @@ function App() {
                   <label className="block mb-2 text-sm">Seats</label>
                   <input
                     type="number"
+                    min="1"
                     name="seats"
                     value={toolData.seats}
                     onChange={(e) => handleChange(index, e)}
