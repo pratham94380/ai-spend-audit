@@ -10,12 +10,6 @@ from .pricing_data import PRICING
 
 load_dotenv()
 
-client = OpenAI(
-    api_key=os.getenv(
-        "OPENAI_API_KEY"
-    )
-)
-
 
 @api_view(['POST'])
 def generate_audit(request):
@@ -26,23 +20,49 @@ def generate_audit(request):
 
     total_monthly_savings = 0
 
+    client = None
+
+    if os.getenv("OPENAI_API_KEY"):
+
+        client = OpenAI(
+            api_key=os.getenv(
+                "OPENAI_API_KEY"
+            )
+        )
+
     for item in tools:
 
         tool = item.get("tool")
         plan = item.get("plan")
-        spend = float(item.get("spend", 0))
-        seats = int(item.get("seats", 1))
 
-        recommendation = "Your spending looks optimized."
+        spend = float(
+            item.get("spend", 0)
+        )
+
+        seats = int(
+            item.get("seats", 1)
+        )
+
+        recommendation = (
+            "Your spending looks optimized."
+        )
+
         savings = 0
-        reason = "No major inefficiencies detected."
 
-        official_price = PRICING.get(tool, {}).get(plan)
+        reason = (
+            "No major inefficiencies detected."
+        )
+
+        official_price = (
+            PRICING.get(tool, {})
+            .get(plan)
+        )
 
         if official_price:
 
-            expected_cost = official_price * seats
-
+            expected_cost = (
+                official_price * seats
+            )
 
             if spend > expected_cost:
 
@@ -61,7 +81,6 @@ def generate_audit(request):
                     f"is around ${expected_cost}."
                 )
 
-                # Extreme overspending detection
                 if spend > expected_cost * 2:
 
                     recommendation = (
@@ -90,11 +109,17 @@ def generate_audit(request):
         total_monthly_savings += savings
 
         results.append({
+
             "tool": tool,
+
             "plan": plan,
+
             "recommendation": recommendation,
+
             "reason": reason,
+
             "monthly_savings": savings,
+
             "annual_savings": savings * 12,
         })
 
@@ -115,31 +140,43 @@ def generate_audit(request):
         Keep response under 100 words.
         """
 
-        response = client.chat.completions.create(
+        if client:
 
-            model="gpt-4o-mini",
+            response = client.chat.completions.create(
 
-            messages=[
+                model="gpt-4o-mini",
 
-                {
-                    "role": "system",
+                messages=[
 
-                    "content":
-                    "You are an AI spend optimization assistant."
-                },
+                    {
+                        "role": "system",
 
-                {
-                    "role": "user",
+                        "content":
+                        "You are an AI spend optimization assistant."
+                    },
 
-                    "content": prompt
-                }
-            ]
-        )
+                    {
+                        "role": "user",
 
-        summary = (
-            response.choices[0]
-            .message.content
-        )
+                        "content": prompt
+                    }
+                ]
+            )
+
+            summary = (
+                response.choices[0]
+                .message.content
+            )
+
+        else:
+
+            summary = (
+                f"Your team could potentially save "
+                f"${round(total_monthly_savings, 2)}/month "
+                f"and ${round(total_monthly_savings * 12, 2)}/year "
+                f"by optimizing AI tooling plans "
+                f"and reducing unnecessary spending."
+            )
 
     except Exception:
 
@@ -152,8 +189,11 @@ def generate_audit(request):
         )
 
     return Response({
+
         "results": results,
+
         "summary": summary,
+
         "total_monthly_savings":
             round(total_monthly_savings, 2),
 
