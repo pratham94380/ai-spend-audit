@@ -140,3 +140,15 @@ Enterprise and API pricing may vary depending on usage and contracts.
 - Email-based audit reports
 - Database persistence
 - Shareable public audit links
+
+
+## Screenshots
+
+### Landing Page
+![Landing Page](screenshots/landing-page.png)
+
+### Filled Audit Form
+![Filled Audit Form](screenshots/filled-audit-form.png)
+
+### Audit Results
+![Audit Results](screenshots/audit-results.png)
