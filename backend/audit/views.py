@@ -222,3 +222,58 @@ def generate_audit(request):
         "total_annual_savings":
             round(total_monthly_savings * 12, 2)
     })
+
+@api_view(['POST'])
+def detect_changes(request):
+
+    audits = Audit.objects.all()
+
+    affected_audits = []
+
+    for audit in audits:
+
+        old_snapshot = audit.pricing_snapshot
+
+        changes = []
+
+        for tool, plans in old_snapshot.items():
+
+            current_tool = PRICING.get(tool, {})
+
+            for plan, old_price in plans.items():
+
+                current_price = (
+                    current_tool.get(plan)
+                )
+
+                if current_price != old_price:
+
+                    changes.append({
+
+                        "tool": tool,
+
+                        "plan": plan,
+
+                        "old_price": old_price,
+
+                        "new_price": current_price
+                    })
+
+        if changes:
+
+            affected_audits.append({
+
+                "audit_id": str(
+                    audit.audit_id
+                ),
+
+                "email": audit.email,
+
+                "changes": changes
+            })
+
+    return Response({
+
+        "affected_audits":
+            affected_audits
+    })
