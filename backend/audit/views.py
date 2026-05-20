@@ -1,5 +1,5 @@
 import os
-
+from .models import Audit
 from openai import OpenAI
 
 from dotenv import load_dotenv
@@ -15,7 +15,7 @@ load_dotenv()
 def generate_audit(request):
 
     tools = request.data.get("tools", [])
-
+    email = request.data.get("email")
     results = []
 
     total_monthly_savings = 0
@@ -187,6 +187,28 @@ def generate_audit(request):
             f"by optimizing AI tooling plans "
             f"and reducing unnecessary spending."
         )
+
+    audit = Audit.objects.create(
+
+        email=email,
+
+        input_stack=tools,
+
+        output_result={
+
+            "results": results,
+
+            "summary": summary,
+
+            "total_monthly_savings":
+                round(total_monthly_savings, 2),
+
+            "total_annual_savings":
+                round(total_monthly_savings * 12, 2)
+        },
+
+        pricing_snapshot=PRICING
+    )
 
     return Response({
 
