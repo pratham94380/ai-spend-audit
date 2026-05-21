@@ -1,4 +1,5 @@
 import os
+import resend
 from .models import Audit
 from openai import OpenAI
 
@@ -10,6 +11,9 @@ from .pricing_data import PRICING
 
 load_dotenv()
 
+resend.api_key = os.getenv(
+    "RESEND_API_KEY"
+)
 
 @api_view(['POST'])
 def generate_audit(request):
@@ -228,7 +232,8 @@ def detect_changes(request):
 
     audits = Audit.objects.all()
 
-    affected_audits = []
+    # affected_audits = []
+    affected_users = {}
 
     for audit in audits:
 
@@ -261,19 +266,51 @@ def detect_changes(request):
 
         if changes:
 
-            affected_audits.append({
+            if audit.email not in affected_users:
+
+                affected_users[audit.email] = []
+
+            affected_users[audit.email].append({
 
                 "audit_id": str(
                     audit.audit_id
                 ),
 
-                "email": audit.email,
-
                 "changes": changes
             })
 
+    for email, audits in affected_users.items():
+
+        resend.Emails.send({
+
+            "from":
+                "onboarding@resend.dev",
+
+            "to":
+                email,
+
+            "subject":
+                "AI Spend Audit Pricing Changes Detected",
+
+            "html":
+                f"""
+                <h2>Pricing changes detected</h2>
+
+                <p>
+                Your previous AI spend audit may be outdated.
+                </p>
+
+                <p>
+                Pricing changes were detected in your AI tooling stack.
+                </p>
+
+                <p>
+                Please re-run your audit to see updated recommendations.
+                </p>
+                """
+        })
     return Response({
 
-        "affected_audits":
-            affected_audits
+        "affected_users":
+            affected_users
     })

@@ -24,7 +24,7 @@ PRICING = {
 
     "ChatGPT": {
         "Plus": 20,
-        "Team": 50,
+        "Team": 90,
         "Enterprise": 60,
         "API direct": 50,
     },
