@@ -282,6 +282,72 @@ def detect_changes(request):
 
     for email, audits in affected_users.items():
 
+        audit_html = ""
+
+        for audit_data in audits:
+
+            audit_id = audit_data["audit_id"]
+
+            changes = audit_data["changes"]
+
+            changes_html = ""
+
+            for change in changes:
+
+                changes_html += f"""
+                <li>
+                    <strong>{change['tool']}</strong>
+                    ({change['plan']})
+                    changed from
+                    ${change['old_price']}
+                    to
+                    ${change['new_price']}
+                </li>
+                """
+
+            re_audit_link = (
+                f"http://localhost:5173/audit/{audit_id}"
+            )
+
+            audit_html += f"""
+            <div style="margin-bottom: 30px;">
+
+                <h3>
+                    Audit ID:
+                    {audit_id}
+                </h3>
+
+                <p>
+                    Pricing changes detected:
+                </p>
+
+                <ul>
+                    {changes_html}
+                </ul>
+
+                <p>
+                    Your previous recommendations may now
+                    be outdated.
+                </p>
+
+                <a
+                    href="{re_audit_link}"
+                    style="
+                        background: black;
+                        color: white;
+                        padding: 10px 18px;
+                        text-decoration: none;
+                        border-radius: 8px;
+                        display: inline-block;
+                        margin-top: 10px;
+                    "
+                >
+                    Re-run Audit
+                </a>
+
+            </div>
+            """
+
         resend.Emails.send({
 
             "from":
@@ -295,19 +361,16 @@ def detect_changes(request):
 
             "html":
                 f"""
-                <h2>Pricing changes detected</h2>
+                <h2>
+                    AI Pricing Changes Detected
+                </h2>
 
                 <p>
-                Your previous AI spend audit may be outdated.
+                    Some AI tool pricing changes may affect
+                    your previous audits.
                 </p>
 
-                <p>
-                Pricing changes were detected in your AI tooling stack.
-                </p>
-
-                <p>
-                Please re-run your audit to see updated recommendations.
-                </p>
+                {audit_html}
                 """
         })
     return Response({
@@ -326,6 +389,87 @@ def get_audit(request, audit_id):
         audit_id=audit_id
     )
 
+    old_result = audit.output_result
+
+    tools = audit.input_stack
+
+    recalculated_results = []
+
+    recalculated_total = 0
+
+    for item in tools:
+
+        tool = item.get("tool")
+
+        plan = item.get("plan")
+
+        spend = float(
+            item.get("spend", 0)
+        )
+
+        seats = int(
+            item.get("seats", 1)
+        )
+
+        recommendation = (
+            "Your spending looks optimized."
+        )
+
+        savings = 0
+
+        reason = (
+            "No major inefficiencies detected."
+        )
+
+        official_price = (
+            PRICING.get(tool, {})
+            .get(plan)
+        )
+
+        if official_price:
+
+            expected_cost = (
+                official_price * seats
+            )
+
+            if spend > expected_cost:
+
+                savings = round(
+                    spend - expected_cost,
+                    2
+                )
+
+                recommendation = (
+                    f"Reduce spending on {tool}."
+                )
+
+                reason = (
+                    f"Current spend is ${spend}, "
+                    f"while expected pricing "
+                    f"is around ${expected_cost}."
+                )
+
+        recalculated_total += savings
+
+        recalculated_results.append({
+
+            "tool": tool,
+
+            "plan": plan,
+
+            "recommendation":
+                recommendation,
+
+            "reason":
+                reason,
+
+            "monthly_savings":
+                savings,
+
+            "annual_savings":
+                savings * 12
+        })
+
     return Response({
 
         "audit_id":
@@ -334,15 +478,21 @@ def get_audit(request, audit_id):
         "email":
             audit.email,
 
-        "input_stack":
-            audit.input_stack,
-
-        "output_result":
-            audit.output_result,
-
-        "pricing_snapshot":
-            audit.pricing_snapshot,
-
         "created_at":
-            audit.created_at
+            audit.created_at,
+
+        "old_result":
+            old_result,
+
+        "new_result": {
+
+            "results":
+                recalculated_results,
+
+            "total_monthly_savings":
+                recalculated_total,
+
+            "total_annual_savings":
+                recalculated_total * 12
+        }
     })
