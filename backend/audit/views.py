@@ -1,5 +1,6 @@
 import os
 import resend
+from django.shortcuts import get_object_or_404
 from .models import Audit
 from openai import OpenAI
 
@@ -313,4 +314,35 @@ def detect_changes(request):
 
         "affected_users":
             affected_users
+    })
+
+@api_view(['GET'])
+def get_audit(request, audit_id):
+
+    audit = get_object_or_404(
+
+        Audit,
+
+        audit_id=audit_id
+    )
+
+    return Response({
+
+        "audit_id":
+            str(audit.audit_id),
+
+        "email":
+            audit.email,
+
+        "input_stack":
+            audit.input_stack,
+
+        "output_result":
+            audit.output_result,
+
+        "pricing_snapshot":
+            audit.pricing_snapshot,
+
+        "created_at":
+            audit.created_at
     })
